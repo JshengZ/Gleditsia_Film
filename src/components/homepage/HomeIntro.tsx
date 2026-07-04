@@ -170,18 +170,18 @@ export function HomeIntro() {
             cue: 10.8,
           };
       const developFilter = reduced
-        ? "brightness(0.92) contrast(1.08) saturate(0.76) blur(0px)"
-        : "brightness(0.96) contrast(1.16) saturate(0.78) blur(0px)";
+        ? "brightness(0.98) contrast(1.08) saturate(0.78) blur(0px)"
+        : "brightness(1.06) contrast(1.16) saturate(0.86) blur(0px)";
       const latentFilter = reduced ? "blur(7px)" : "blur(11px)";
       const sleepingFilter = reduced
-        ? "brightness(0.48) contrast(0.62) saturate(0.35) blur(5px)"
-        : "brightness(0.28) contrast(0.44) saturate(0.24) blur(8px)";
+        ? "brightness(0.48) contrast(0.62) saturate(0.38) blur(5px)"
+        : "brightness(0.34) contrast(0.52) saturate(0.32) blur(7px)";
       const midDevelopFilter = reduced
-        ? "brightness(0.62) contrast(0.82) saturate(0.5) blur(2.5px)"
-        : "brightness(0.54) contrast(0.76) saturate(0.42) blur(4px)";
+        ? "brightness(0.7) contrast(0.86) saturate(0.54) blur(2.4px)"
+        : "brightness(0.68) contrast(0.9) saturate(0.52) blur(3px)";
       const lowAwakeFilter = reduced
-        ? "brightness(0.7) contrast(0.82) saturate(0.54) blur(1.5px)"
-        : "brightness(0.62) contrast(0.74) saturate(0.48) blur(2.5px)";
+        ? "brightness(0.76) contrast(0.88) saturate(0.58) blur(1.5px)"
+        : "brightness(0.72) contrast(0.88) saturate(0.58) blur(2px)";
 
       gsap.set(title, {
         autoAlpha: 0,
@@ -203,7 +203,7 @@ export function HomeIntro() {
         clipPath: "inset(28% 20% 24% 18%)",
         filter: reduced
           ? "brightness(0.72) contrast(0.82) saturate(0.56) blur(1.5px)"
-          : "brightness(0.26) contrast(0.46) saturate(0.32) blur(7px)",
+          : sleepingFilter,
       });
       gsap.set(allImages, {
         opacity: 0.08,
@@ -219,7 +219,7 @@ export function HomeIntro() {
         opacity: reduced ? 0.66 : 0.88,
       });
       gsap.set(allEmulsions, {
-        opacity: reduced ? 0.28 : 0.46,
+        opacity: reduced ? 0.26 : 0.42,
         filter: reduced ? "blur(3px)" : "blur(6px)",
       });
       gsap.set(cue, { autoAlpha: 0, y: 8 });
@@ -279,7 +279,7 @@ export function HomeIntro() {
           .set(image, { opacity: 0.08, filter: sleepingFilter })
           .set(latent, { opacity: 0, x: "-10%", scale: 0.92, filter: latentFilter })
           .set(veil, { opacity: reduced ? 0.66 : 0.88 })
-          .set(emulsion, { opacity: reduced ? 0.28 : 0.46, filter: reduced ? "blur(3px)" : "blur(6px)" })
+          .set(emulsion, { opacity: reduced ? 0.26 : 0.42, filter: reduced ? "blur(3px)" : "blur(6px)" })
           .to(
             card,
             {
@@ -325,7 +325,7 @@ export function HomeIntro() {
             card,
             {
               clipPath: "inset(0% 0% 0% 0%)",
-              filter: "brightness(0.96) contrast(1.02) saturate(0.86) blur(0.35px)",
+              filter: lowAwakeFilter,
               duration: duration * 0.5,
               ease: "power2.out",
             },
@@ -356,7 +356,7 @@ export function HomeIntro() {
           .to(
             veil,
             {
-              opacity: 0.012,
+              opacity: 0,
               duration: duration * 0.32,
               ease: "sine.out",
             },
@@ -365,7 +365,7 @@ export function HomeIntro() {
           .to(
             emulsion,
             {
-              opacity: 0.08,
+              opacity: reduced ? 0.035 : 0.045,
               filter: "blur(0.5px)",
               duration: duration * 0.34,
               ease: "sine.out",
@@ -375,7 +375,9 @@ export function HomeIntro() {
           .to(
             card,
             {
-              filter: "brightness(1.01) contrast(1.08) saturate(0.92) blur(0px)",
+              filter: reduced
+                ? "brightness(0.98) contrast(1.04) saturate(0.84) blur(0px)"
+                : "brightness(1.02) contrast(1.08) saturate(0.9) blur(0px)",
               x: 0,
               y: 0,
               duration: duration * 0.26,
@@ -453,7 +455,7 @@ export function HomeIntro() {
             xPercent: 0,
             yPercent: -100,
             fontSize: brandFinal.fontSize,
-            color: "rgba(232, 222, 204, 0.82)",
+            color: "rgba(232, 222, 204, 0.86)",
             duration: reduced ? 0.44 : 1,
             ease: "power3.inOut",
           },
@@ -499,7 +501,9 @@ export function HomeIntro() {
           cards,
           {
             clipPath: "inset(0% 0% 0% 0%)",
-            filter: "brightness(1.01) contrast(1.08) saturate(0.92) blur(0px)",
+            filter: reduced
+              ? "brightness(0.98) contrast(1.04) saturate(0.84) blur(0px)"
+              : "brightness(1.02) contrast(1.08) saturate(0.9) blur(0px)",
             duration: reduced ? 0.2 : 0.5,
             stagger: reduced ? 0.006 : 0.014,
             ease: "sine.out",

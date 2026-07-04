@@ -34,6 +34,17 @@ function n(value) {
   return Number.parseFloat(value.toFixed(2));
 }
 
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function liftSubjectOpacity(svg, amount = 1.36) {
+  return svg.replace(/opacity="([0-9.]+)"/g, (_match, value) => {
+    const lifted = clamp(Number.parseFloat(value) * amount, 0, 0.68);
+    return `opacity="${n(lifted)}"`;
+  });
+}
+
 function dust(seed, width, height) {
   const dots = [];
 
@@ -75,17 +86,19 @@ function edgeVignette(width, height) {
   const top = height * 0.18;
 
   return `
-  <rect x="0" y="0" width="${side}" height="${height}" fill="#020201" opacity="0.3" filter="url(#soft)"/>
-  <rect x="${width - side}" y="0" width="${side}" height="${height}" fill="#020201" opacity="0.28" filter="url(#soft)"/>
-  <rect x="0" y="0" width="${width}" height="${top}" fill="#020201" opacity="0.18" filter="url(#soft)"/>
-  <rect x="0" y="${height - top}" width="${width}" height="${top}" fill="#020201" opacity="0.34" filter="url(#soft)"/>`;
+  <rect x="0" y="0" width="${side}" height="${height}" fill="#020201" opacity="0.18" filter="url(#soft)"/>
+  <rect x="${width - side}" y="0" width="${side}" height="${height}" fill="#020201" opacity="0.16" filter="url(#soft)"/>
+  <rect x="0" y="0" width="${width}" height="${top}" fill="#020201" opacity="0.1" filter="url(#soft)"/>
+  <rect x="0" y="${height - top}" width="${width}" height="${top}" fill="#020201" opacity="0.22" filter="url(#soft)"/>`;
 }
 
 function windowBars(w, h, x, y, width, height, opacity = 0.12) {
+  const light = clamp(opacity * 1.28, 0, 0.26);
+
   return `
-    <rect x="${w * x}" y="${h * y}" width="${w * width}" height="${h * height}" fill="#ecd8ad" opacity="${opacity}" filter="url(#soft)"/>
-    <line x1="${w * (x + width * 0.48)}" y1="${h * y}" x2="${w * (x + width * 0.48)}" y2="${h * (y + height)}" stroke="#f1d9a9" stroke-width="${w * 0.004}" opacity="${opacity * 0.9}"/>
-    <line x1="${w * x}" y1="${h * (y + height * 0.52)}" x2="${w * (x + width)}" y2="${h * (y + height * 0.52)}" stroke="#f1d9a9" stroke-width="${w * 0.0035}" opacity="${opacity * 0.75}"/>`;
+    <rect x="${w * x}" y="${h * y}" width="${w * width}" height="${h * height}" fill="#ecd8ad" opacity="${n(light)}" filter="url(#soft)"/>
+    <line x1="${w * (x + width * 0.48)}" y1="${h * y}" x2="${w * (x + width * 0.48)}" y2="${h * (y + height)}" stroke="#f1d9a9" stroke-width="${w * 0.004}" opacity="${n(light * 0.9)}"/>
+    <line x1="${w * x}" y1="${h * (y + height * 0.52)}" x2="${w * (x + width)}" y2="${h * (y + height * 0.52)}" stroke="#f1d9a9" stroke-width="${w * 0.0035}" opacity="${n(light * 0.75)}"/>`;
 }
 
 function motifSvg(motif, width, height) {
@@ -237,14 +250,15 @@ function svgFor(photo) {
     </filter>
   </defs>
   <rect width="${width}" height="${height}" fill="url(#paper)"/>
-  <rect width="${width}" height="${height}" fill="#060504" opacity="0.12"/>
+  <rect width="${width}" height="${height}" fill="#060504" opacity="0.055"/>
+  <rect width="${width}" height="${height}" fill="#e6d1ad" opacity="0.028"/>
   <g filter="url(#tonalDisplace)">
     ${tonalPlates(photo.seed, width, height)}
-    ${motifSvg(photo.motif, width, height)}
+    ${liftSubjectOpacity(motifSvg(photo.motif, width, height))}
   </g>
   ${edgeVignette(width, height)}
-  <rect width="${width}" height="${height}" fill="#0a0806" opacity="0.08"/>
-  <rect width="${width}" height="${height}" filter="url(#grain)" opacity="0.24"/>
+  <rect width="${width}" height="${height}" fill="#0a0806" opacity="0.028"/>
+  <rect width="${width}" height="${height}" filter="url(#grain)" opacity="0.18"/>
   <g>${scratches(photo.seed, width, height)}</g>
   <g>${dust(photo.seed, width, height)}</g>
 </svg>

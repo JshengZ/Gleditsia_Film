@@ -22,7 +22,7 @@ export function FilmLightLeakBurst({ triggerKey }: FilmLightLeakBurstProps) {
     const ctx = gsap.context(() => {
       gsap.set(leak, {
         opacity: 0,
-        xPercent: -12,
+        xPercent: -14,
         yPercent: -1,
         scaleX: 1,
         scaleY: 1,
@@ -33,30 +33,30 @@ export function FilmLightLeakBurst({ triggerKey }: FilmLightLeakBurstProps) {
       gsap
         .timeline()
         .to(leak, {
-          opacity: 0.12,
-          duration: 0.1,
+          opacity: 0.2,
+          duration: 0.14,
           ease: "power2.out",
         })
         .to(
           leak,
           {
-            xPercent: 2,
-            scaleX: 1.08,
+            xPercent: 3,
+            scaleX: 1.1,
             scaleY: 1.02,
             rotate: -0.4,
-            duration: 0.2,
+            duration: 0.28,
             ease: "power1.inOut",
           },
-          "<",
+          ">",
         )
         .to(
           leak,
           {
             opacity: 0,
-            duration: 0.18,
+            duration: 0.32,
             ease: "power2.in",
           },
-          "-=0.05",
+          "-=0.09",
         );
     }, leak);
 

@@ -28,7 +28,7 @@ export function useDominantBackground(src: string) {
 
         setBackground({
           base: muteColor(color.hex, 1),
-          soft: muteColor(color.hex, 0.24),
+          soft: muteColor(color.hex, 0.14),
         });
       })
       .catch(() => {

@@ -9,14 +9,14 @@
   --brand-bottom: 3rem;
   --brand-final-size: 2rem;
   --brand-intro-size: 8rem;
-  --film-grain-coarse-opacity: 0.055;
-  --film-grain-fine-opacity: 0.026;
-  --film-grain-dust-opacity: 0.014;
-  --film-density-opacity: 0.075;
-  --film-scratch-opacity: 0.07;
-  --film-scratch-burst-opacity: 0.095;
-  --film-flicker-opacity: 0.026;
-  --film-chemical-opacity: 0.05;
+  --film-grain-coarse-opacity: 0.048;
+  --film-grain-fine-opacity: 0.022;
+  --film-grain-dust-opacity: 0.012;
+  --film-density-opacity: 0.026;
+  --film-scratch-opacity: 0.046;
+  --film-scratch-burst-opacity: 0.07;
+  --film-flicker-opacity: 0.018;
+  --film-chemical-opacity: 0.035;
 }
 
 @theme inline {
@@ -62,66 +62,67 @@ body.gleditsia-opening-lock {
   min-height: 100svh;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.34), transparent 22%, transparent 78%, rgba(0, 0, 0, 0.38)),
-    linear-gradient(180deg, #070605 0%, #090706 52%, #050403 100%);
+    linear-gradient(90deg, rgba(0, 0, 0, 0.24), transparent 24%, transparent 76%, rgba(0, 0, 0, 0.26)),
+    radial-gradient(ellipse at 52% 54%, var(--dynamic-bg-soft) 0%, rgba(0, 0, 0, 0) 52%),
+    linear-gradient(180deg, #070605 0%, var(--dynamic-bg) 54%, #050403 100%);
   isolation: isolate;
   transition: background 1200ms ease;
 }
 
 .home-intro[data-film-phase="blackout"],
 .home-intro[data-film-phase="title"] {
-  --film-grain-coarse-opacity: 0.055;
-  --film-grain-fine-opacity: 0.026;
-  --film-grain-dust-opacity: 0.014;
-  --film-density-opacity: 0.075;
-  --film-scratch-opacity: 0.07;
-  --film-scratch-burst-opacity: 0.095;
-  --film-flicker-opacity: 0.026;
-  --film-chemical-opacity: 0.05;
-}
-
-.home-intro[data-film-phase="title-retreat"] {
-  --film-grain-coarse-opacity: 0.05;
-  --film-grain-fine-opacity: 0.024;
-  --film-grain-dust-opacity: 0.013;
-  --film-density-opacity: 0.068;
-  --film-scratch-opacity: 0.06;
-  --film-scratch-burst-opacity: 0.085;
-  --film-flicker-opacity: 0.024;
-  --film-chemical-opacity: 0.046;
-}
-
-.home-intro[data-film-phase="photo-developing"] {
   --film-grain-coarse-opacity: 0.048;
   --film-grain-fine-opacity: 0.022;
   --film-grain-dust-opacity: 0.012;
-  --film-density-opacity: 0.058;
-  --film-scratch-opacity: 0.052;
-  --film-scratch-burst-opacity: 0.075;
-  --film-flicker-opacity: 0.022;
+  --film-density-opacity: 0.026;
+  --film-scratch-opacity: 0.046;
+  --film-scratch-burst-opacity: 0.07;
+  --film-flicker-opacity: 0.018;
+  --film-chemical-opacity: 0.035;
+}
+
+.home-intro[data-film-phase="title-retreat"] {
+  --film-grain-coarse-opacity: 0.048;
+  --film-grain-fine-opacity: 0.022;
+  --film-grain-dust-opacity: 0.012;
+  --film-density-opacity: 0.026;
+  --film-scratch-opacity: 0.046;
+  --film-scratch-burst-opacity: 0.07;
+  --film-flicker-opacity: 0.018;
+  --film-chemical-opacity: 0.035;
+}
+
+.home-intro[data-film-phase="photo-developing"] {
+  --film-grain-coarse-opacity: 0.044;
+  --film-grain-fine-opacity: 0.02;
+  --film-grain-dust-opacity: 0.011;
+  --film-density-opacity: 0.024;
+  --film-scratch-opacity: 0.04;
+  --film-scratch-burst-opacity: 0.06;
+  --film-flicker-opacity: 0.016;
   --film-chemical-opacity: 0.04;
 }
 
 .home-intro[data-film-phase="photo-wall"] {
-  --film-grain-coarse-opacity: 0.04;
+  --film-grain-coarse-opacity: 0.038;
   --film-grain-fine-opacity: 0.018;
-  --film-grain-dust-opacity: 0.01;
-  --film-density-opacity: 0.046;
-  --film-scratch-opacity: 0.042;
-  --film-scratch-burst-opacity: 0.06;
-  --film-flicker-opacity: 0.018;
-  --film-chemical-opacity: 0.034;
+  --film-grain-dust-opacity: 0.009;
+  --film-density-opacity: 0.02;
+  --film-scratch-opacity: 0.032;
+  --film-scratch-burst-opacity: 0.048;
+  --film-flicker-opacity: 0.012;
+  --film-chemical-opacity: 0.024;
 }
 
 .home-intro[data-film-phase="settled"] {
-  --film-grain-coarse-opacity: 0.035;
-  --film-grain-fine-opacity: 0.016;
-  --film-grain-dust-opacity: 0.008;
-  --film-density-opacity: 0.04;
-  --film-scratch-opacity: 0.035;
-  --film-scratch-burst-opacity: 0.05;
-  --film-flicker-opacity: 0.014;
-  --film-chemical-opacity: 0.028;
+  --film-grain-coarse-opacity: 0.038;
+  --film-grain-fine-opacity: 0.018;
+  --film-grain-dust-opacity: 0.009;
+  --film-density-opacity: 0.02;
+  --film-scratch-opacity: 0.032;
+  --film-scratch-burst-opacity: 0.048;
+  --film-flicker-opacity: 0.012;
+  --film-chemical-opacity: 0.024;
 }
 
 .home-intro::before {
@@ -131,11 +132,11 @@ body.gleditsia-opening-lock {
   pointer-events: none;
   content: "";
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.48), transparent 15%, transparent 85%, rgba(0, 0, 0, 0.48)),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.28), transparent 20%, transparent 78%, rgba(0, 0, 0, 0.56)),
-    linear-gradient(180deg, rgba(255, 236, 204, 0.006), transparent 32%, transparent 76%, rgba(0, 0, 0, 0.2));
+    linear-gradient(90deg, rgba(0, 0, 0, 0.32), transparent 16%, transparent 86%, rgba(0, 0, 0, 0.34)),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18), transparent 20%, transparent 78%, rgba(0, 0, 0, 0.34)),
+    linear-gradient(180deg, rgba(255, 236, 204, 0.008), transparent 34%, transparent 76%, rgba(0, 0, 0, 0.12));
   mix-blend-mode: soft-light;
-  opacity: 0.7;
+  opacity: 0.44;
   animation: vignette-breath 12s ease-in-out infinite;
 }
 
@@ -147,9 +148,9 @@ body.gleditsia-opening-lock {
   content: "";
   background:
     linear-gradient(90deg, rgba(255, 243, 218, 0.006), transparent 16%, transparent 86%, rgba(255, 243, 218, 0.005)),
-    linear-gradient(180deg, rgba(255, 245, 222, 0.007), transparent 42%, rgba(0, 0, 0, 0.12));
+    linear-gradient(180deg, rgba(255, 245, 222, 0.01), transparent 42%, rgba(0, 0, 0, 0.08));
   mix-blend-mode: soft-light;
-  opacity: 0.11;
+  opacity: 0.15;
   animation: projector-exposure-breath 9.8s ease-in-out infinite;
 }
 
@@ -226,7 +227,7 @@ body.gleditsia-opening-lock {
   width: var(--desktop-w);
   aspect-ratio: var(--photo-ratio);
   opacity: 0;
-  filter: brightness(0.32) contrast(0.5) saturate(0.36) blur(8px);
+  filter: brightness(0.34) contrast(0.52) saturate(0.32) blur(7px);
   clip-path: inset(28% 20% 24% 18%);
   transform: rotate(var(--desktop-rotate)) translate3d(0, 0, 0);
   transform-origin: 50% 50%;
@@ -238,8 +239,8 @@ body.gleditsia-opening-lock {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: rgba(8, 7, 6, 0.96);
-  border: 1px solid rgba(232, 222, 204, 0.04);
+  background: rgba(8, 7, 6, 0.9);
+  border: 1px solid rgba(232, 222, 204, 0.055);
   box-shadow:
     0 0.35rem 1.1rem rgba(0, 0, 0, 0.18),
     0 0 0 1px rgba(0, 0, 0, 0.34) inset;
@@ -251,7 +252,7 @@ body.gleditsia-opening-lock {
   height: 100%;
   object-fit: cover;
   opacity: 0.08;
-  filter: brightness(0.32) contrast(0.5) saturate(0.3) blur(8px);
+  filter: brightness(0.34) contrast(0.52) saturate(0.32) blur(7px);
   user-select: none;
   will-change: opacity, filter;
 }
@@ -278,11 +279,11 @@ body.gleditsia-opening-lock {
 }
 
 .developing-photo-emulsion {
-  opacity: 0.42;
+  opacity: 0.38;
   background:
-    linear-gradient(110deg, transparent 0 19%, rgba(255, 240, 205, 0.07) 34%, transparent 52%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.22), transparent 14%, transparent 86%, rgba(0, 0, 0, 0.2)),
-    linear-gradient(180deg, transparent 52%, rgba(0, 0, 0, 0.18) 100%);
+    linear-gradient(110deg, transparent 0 19%, rgba(255, 240, 205, 0.08) 34%, transparent 52%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.14), transparent 14%, transparent 86%, rgba(0, 0, 0, 0.14)),
+    linear-gradient(180deg, transparent 56%, rgba(0, 0, 0, 0.1) 100%);
   filter: blur(5px);
   mix-blend-mode: soft-light;
   will-change: opacity, filter;
@@ -291,8 +292,8 @@ body.gleditsia-opening-lock {
 .developing-photo-veil {
   opacity: 0.88;
   background:
-    linear-gradient(90deg, rgba(5, 4, 3, 0.82), rgba(13, 11, 9, 0.68) 42%, rgba(5, 4, 3, 0.82)),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.64));
+    linear-gradient(90deg, rgba(5, 4, 3, 0.76), rgba(13, 11, 9, 0.58) 42%, rgba(5, 4, 3, 0.76)),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.54));
   will-change: opacity;
 }
 
@@ -354,16 +355,16 @@ body.gleditsia-opening-lock {
   background:
     linear-gradient(
       90deg,
-      rgba(0, 0, 0, 0.52) 0%,
-      rgba(0, 0, 0, 0.08) 19%,
-      rgba(0, 0, 0, 0.12) 52%,
-      rgba(0, 0, 0, 0.44) 100%
+      rgba(0, 0, 0, 0.22) 0%,
+      rgba(0, 0, 0, 0.035) 19%,
+      rgba(0, 0, 0, 0.045) 52%,
+      rgba(0, 0, 0, 0.2) 100%
     ),
-    radial-gradient(ellipse at 12% 78%, rgba(76, 54, 38, 0.08) 0%, rgba(0, 0, 0, 0) 33%),
-    radial-gradient(ellipse at 91% 12%, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0) 40%),
-    linear-gradient(180deg, rgba(255, 232, 190, 0.01), transparent 30%, transparent 72%, rgba(0, 0, 0, 0.22));
+    radial-gradient(ellipse at 12% 78%, rgba(76, 54, 38, 0.055) 0%, rgba(0, 0, 0, 0) 32%),
+    radial-gradient(ellipse at 91% 12%, rgba(0, 0, 0, 0.16) 0%, rgba(0, 0, 0, 0) 38%),
+    linear-gradient(180deg, rgba(255, 232, 190, 0.012), transparent 34%, transparent 74%, rgba(0, 0, 0, 0.1));
   filter: blur(0.35px);
-  mix-blend-mode: multiply;
+  mix-blend-mode: normal;
   animation: film-density-crawl 14s ease-in-out infinite;
 }
 
@@ -387,7 +388,7 @@ body.gleditsia-opening-lock {
   opacity: var(--film-grain-coarse-opacity);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='discrete' tableValues='0.08 0.32 0.58 0.84 1'/%3E%3CfeFuncG type='discrete' tableValues='0.08 0.32 0.58 0.84 1'/%3E%3CfeFuncB type='discrete' tableValues='0.08 0.32 0.58 0.84 1'/%3E%3CfeFuncA type='table' tableValues='0 0.86'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 132px 132px;
-  filter: contrast(0.72) brightness(0.62);
+  filter: contrast(0.82) brightness(0.74);
   animation: grain-jitter-coarse 1600ms steps(2, end) infinite;
 }
 
@@ -395,7 +396,7 @@ body.gleditsia-opening-lock {
   opacity: var(--film-grain-fine-opacity);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.32' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.68'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 74px 74px;
-  filter: contrast(0.72) brightness(0.68);
+  filter: contrast(0.8) brightness(0.76);
   mix-blend-mode: soft-light;
   animation: grain-jitter-fine 2300ms steps(3, end) infinite;
 }
@@ -413,7 +414,7 @@ body.gleditsia-opening-lock {
 
 .film-scratches-overlay {
   z-index: 21;
-  mix-blend-mode: soft-light;
+  mix-blend-mode: normal;
   overflow: hidden;
 }
 
@@ -485,26 +486,26 @@ body.gleditsia-opening-lock {
 }
 
 .film-light-leak {
-  inset: -8% -10%;
+  inset: -7% -8%;
   z-index: 36;
   contain: paint;
-  filter: blur(16px) saturate(1.12);
-  mix-blend-mode: soft-light;
+  filter: blur(14px) saturate(1.05);
+  mix-blend-mode: screen;
   opacity: 0;
   background:
     linear-gradient(
       105deg,
       rgba(255, 87, 28, 0) 0%,
-      rgba(212, 106, 48, 0.12) 7%,
-      rgba(238, 178, 98, 0.16) 13%,
-      rgba(255, 226, 154, 0.07) 20%,
-      rgba(0, 0, 0, 0) 34%
+      rgba(212, 106, 48, 0.18) 5%,
+      rgba(238, 178, 98, 0.22) 10%,
+      rgba(255, 226, 154, 0.1) 16%,
+      rgba(0, 0, 0, 0) 29%
     ),
     linear-gradient(
       78deg,
-      rgba(190, 58, 28, 0.06) 0%,
-      rgba(238, 137, 64, 0.055) 6%,
-      rgba(0, 0, 0, 0) 18%
+      rgba(190, 58, 28, 0.09) 0%,
+      rgba(238, 137, 64, 0.08) 5%,
+      rgba(0, 0, 0, 0) 15%
     );
   transform-origin: left center;
   will-change: opacity, transform;
@@ -537,11 +538,11 @@ body.gleditsia-opening-lock {
 .film-light-leak__edge {
   top: -8%;
   bottom: -8%;
-  left: -7%;
-  width: min(16rem, 24vw);
+  left: -5%;
+  width: clamp(7rem, 15vw, 14rem);
   background:
-    linear-gradient(90deg, rgba(244, 199, 118, 0.16), rgba(213, 92, 42, 0.08) 18%, rgba(255, 190, 112, 0.04) 34%, transparent 72%);
-  filter: blur(12px);
+    linear-gradient(90deg, rgba(244, 199, 118, 0.22), rgba(213, 92, 42, 0.13) 18%, rgba(255, 190, 112, 0.055) 34%, transparent 72%);
+  filter: blur(11px);
 }
 
 .film-light-leak[data-leak-side="right"] .film-light-leak__edge {
@@ -553,12 +554,12 @@ body.gleditsia-opening-lock {
 
 .film-light-leak__burn {
   top: -8%;
-  left: -5%;
-  width: min(12rem, 19vw);
-  height: 30vh;
+  left: -4%;
+  width: clamp(6rem, 12vw, 10rem);
+  height: 28vh;
   background:
-    radial-gradient(ellipse at 12% 18%, rgba(240, 198, 116, 0.13), rgba(206, 84, 36, 0.055) 36%, rgba(0, 0, 0, 0) 68%);
-  filter: blur(14px);
+    radial-gradient(ellipse at 12% 18%, rgba(240, 198, 116, 0.18), rgba(206, 84, 36, 0.075) 34%, rgba(0, 0, 0, 0) 64%);
+  filter: blur(13px);
   transform: rotate(-12deg);
 }
 
@@ -881,28 +882,30 @@ body.gleditsia-opening-lock {
   }
 
   .home-intro {
-    --film-grain-coarse-opacity: 0.045;
-    --film-grain-fine-opacity: 0.02;
+    --film-grain-coarse-opacity: 0.042;
+    --film-grain-fine-opacity: 0.019;
     --film-grain-dust-opacity: 0.01;
-    --film-density-opacity: 0.058;
-    --film-scratch-opacity: 0.055;
-    --film-scratch-burst-opacity: 0.075;
-    --film-flicker-opacity: 0.02;
-    --film-chemical-opacity: 0.04;
+    --film-density-opacity: 0.024;
+    --film-scratch-opacity: 0.04;
+    --film-scratch-burst-opacity: 0.06;
+    --film-flicker-opacity: 0.015;
+    --film-chemical-opacity: 0.03;
     background:
-      linear-gradient(90deg, rgba(0, 0, 0, 0.3), transparent 22%, transparent 78%, rgba(0, 0, 0, 0.34)),
-      linear-gradient(180deg, #070605 0%, #090706 70%, #050403 100%);
+      linear-gradient(90deg, rgba(0, 0, 0, 0.22), transparent 24%, transparent 76%, rgba(0, 0, 0, 0.24)),
+      radial-gradient(ellipse at 52% 54%, var(--dynamic-bg-soft) 0%, rgba(0, 0, 0, 0) 54%),
+      linear-gradient(180deg, #070605 0%, var(--dynamic-bg) 68%, #050403 100%);
   }
 
   .home-intro[data-film-phase="blackout"],
   .home-intro[data-film-phase="title"] {
-    --film-grain-coarse-opacity: 0.045;
-    --film-grain-fine-opacity: 0.02;
+    --film-grain-coarse-opacity: 0.042;
+    --film-grain-fine-opacity: 0.019;
     --film-grain-dust-opacity: 0.01;
-    --film-density-opacity: 0.058;
-    --film-scratch-opacity: 0.055;
-    --film-scratch-burst-opacity: 0.075;
-    --film-flicker-opacity: 0.02;
+    --film-density-opacity: 0.024;
+    --film-scratch-opacity: 0.04;
+    --film-scratch-burst-opacity: 0.06;
+    --film-flicker-opacity: 0.015;
+    --film-chemical-opacity: 0.03;
   }
 
   .home-intro[data-film-phase="title-retreat"],
@@ -910,21 +913,23 @@ body.gleditsia-opening-lock {
     --film-grain-coarse-opacity: 0.04;
     --film-grain-fine-opacity: 0.018;
     --film-grain-dust-opacity: 0.009;
-    --film-density-opacity: 0.05;
-    --film-scratch-opacity: 0.046;
-    --film-scratch-burst-opacity: 0.065;
-    --film-flicker-opacity: 0.018;
+    --film-density-opacity: 0.022;
+    --film-scratch-opacity: 0.036;
+    --film-scratch-burst-opacity: 0.052;
+    --film-flicker-opacity: 0.014;
+    --film-chemical-opacity: 0.032;
   }
 
   .home-intro[data-film-phase="photo-wall"],
   .home-intro[data-film-phase="settled"] {
-    --film-grain-coarse-opacity: 0.032;
-    --film-grain-fine-opacity: 0.014;
-    --film-grain-dust-opacity: 0.007;
-    --film-density-opacity: 0.038;
-    --film-scratch-opacity: 0.032;
-    --film-scratch-burst-opacity: 0.045;
-    --film-flicker-opacity: 0.012;
+    --film-grain-coarse-opacity: 0.034;
+    --film-grain-fine-opacity: 0.016;
+    --film-grain-dust-opacity: 0.008;
+    --film-density-opacity: 0.018;
+    --film-scratch-opacity: 0.028;
+    --film-scratch-burst-opacity: 0.042;
+    --film-flicker-opacity: 0.01;
+    --film-chemical-opacity: 0.022;
   }
 
   .intro-copy {
@@ -963,16 +968,16 @@ body.gleditsia-opening-lock {
   }
 
   .film-light-leak {
-    inset: -8% -18%;
-    filter: blur(14px) saturate(1.08);
+    inset: -8% -14%;
+    filter: blur(13px) saturate(1.05);
   }
 
   .film-light-leak__edge {
-    width: 28vw;
+    width: 18vw;
   }
 
   .film-light-leak__burn {
-    width: 24vw;
+    width: 14vw;
     height: 26vh;
   }
 
@@ -1011,13 +1016,14 @@ body.gleditsia-opening-lock {
   }
 
   .home-intro {
-    --film-grain-coarse-opacity: 0.018;
-    --film-grain-fine-opacity: 0.01;
-    --film-grain-dust-opacity: 0.005;
-    --film-density-opacity: 0.026;
+    --film-grain-coarse-opacity: 0.022;
+    --film-grain-fine-opacity: 0.012;
+    --film-grain-dust-opacity: 0.006;
+    --film-density-opacity: 0.018;
     --film-scratch-opacity: 0.018;
     --film-scratch-burst-opacity: 0.024;
     --film-flicker-opacity: 0.008;
+    --film-chemical-opacity: 0.018;
   }
 
   .mosaic-photo-card,
