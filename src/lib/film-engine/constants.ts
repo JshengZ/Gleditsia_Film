@@ -1,0 +1,71 @@
+import type { FilmScene, FilmSceneProfile, LightLeakColors } from "./types";
+
+export const LIGHT_LEAK_COLORS: LightLeakColors[] = [
+  { core: "255, 224, 154", mid: "237, 126, 58", edge: "155, 38, 24" },
+  { core: "255, 204, 118", mid: "222, 84, 42", edge: "114, 30, 24" },
+  { core: "255, 232, 179", mid: "198, 74, 38", edge: "92, 26, 22" },
+  { core: "255, 215, 132", mid: "204, 65, 36", edge: "86, 22, 18" },
+];
+
+export const SCENE_PROFILES: Record<FilmScene, FilmSceneProfile> = {
+  intro: {
+    exposure: 0.982,
+    density: 0.55,
+    instability: 0.32,
+    contamination: 0.3,
+    coarseGrainRate: 1.4,
+    scratchRate: 0.08,
+    dustRate: 0.08,
+    ambientLeakChance: 0.02,
+  },
+  title: {
+    exposure: 0.99,
+    density: 0.5,
+    instability: 0.38,
+    contamination: 0.34,
+    coarseGrainRate: 1.8,
+    scratchRate: 0.14,
+    dustRate: 0.12,
+    ambientLeakChance: 0.03,
+  },
+  copy: {
+    exposure: 0.995,
+    density: 0.48,
+    instability: 0.4,
+    contamination: 0.36,
+    coarseGrainRate: 2.0,
+    scratchRate: 0.16,
+    dustRate: 0.14,
+    ambientLeakChance: 0.03,
+  },
+  "brand-move": {
+    exposure: 1,
+    density: 0.52,
+    instability: 0.58,
+    contamination: 0.52,
+    coarseGrainRate: 2.8,
+    scratchRate: 0.3,
+    dustRate: 0.2,
+    ambientLeakChance: 0.04,
+  },
+  "photo-developing": {
+    exposure: 1.006,
+    density: 0.58,
+    instability: 0.5,
+    contamination: 0.56,
+    coarseGrainRate: 3.3,
+    scratchRate: 0.24,
+    dustRate: 0.24,
+    ambientLeakChance: 0.05,
+  },
+  settled: {
+    exposure: 0.996,
+    density: 0.46,
+    instability: 0.34,
+    contamination: 0.32,
+    coarseGrainRate: 1.3,
+    scratchRate: 0.08,
+    dustRate: 0.08,
+    ambientLeakChance: 0.14,
+  },
+};

@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { homePhotos, INTRO_LINES } from "@/data/homePhotos";
 import { useLenis } from "@/hooks/useLenis";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import type { FilmScene } from "@/lib/film-engine/types";
 import { FilmOverlay } from "./FilmOverlay";
 import { PhotoMosaicWall } from "./PhotoMosaicWall";
 import { ScrollCue } from "./ScrollCue";
@@ -65,6 +66,16 @@ const PHOTO_REVEAL_ORDER = [
   "home-18",
 ];
 
+const FILM_PHASE_SCENES: Record<string, FilmScene> = {
+  blackout: "intro",
+  title: "title",
+  copy: "copy",
+  "title-retreat": "brand-move",
+  "photo-developing": "photo-developing",
+  "photo-wall": "photo-developing",
+  settled: "settled",
+};
+
 function orderCardsForReveal(cards: HTMLElement[]) {
   const cardsById = new Map(
     cards.map((card) => [card.dataset.photoId ?? "", card]),
@@ -84,6 +95,7 @@ export function HomeIntro() {
   const reducedMotionRef = useRef(reducedMotion);
   const [isSequenceComplete, setIsSequenceComplete] = useState(false);
   const [lightLeakKey, setLightLeakKey] = useState(0);
+  const [filmScene, setFilmScene] = useState<FilmScene>("intro");
 
   useLenis(isSequenceComplete && !reducedMotion);
 
@@ -225,6 +237,7 @@ export function HomeIntro() {
       });
       gsap.set(cue, { autoAlpha: 0, y: 8 });
       section.dataset.filmPhase = "blackout";
+      setFilmScene("intro");
 
       if (!reduced) {
         gsap
@@ -242,6 +255,7 @@ export function HomeIntro() {
 
       const setFilmPhase = (phase: string) => {
         section.dataset.filmPhase = phase;
+        setFilmScene(FILM_PHASE_SCENES[phase] ?? "intro");
       };
 
       const burstLightLeak = () => {
@@ -432,6 +446,7 @@ export function HomeIntro() {
           sequenceTimes.titleIn,
         )
         .call(() => setFilmPhase("title"), [], sequenceTimes.titleIn)
+        .call(() => setFilmPhase("copy"), [], sequenceTimes.copyIn)
         .to(
           lines,
           {
@@ -580,7 +595,7 @@ export function HomeIntro() {
 
         <ScrollCue ref={cueRef} />
       </div>
-      <FilmOverlay lightLeakTriggerKey={lightLeakKey} />
+      <FilmOverlay lightLeakTriggerKey={lightLeakKey} scene={filmScene} />
     </section>
   );
 }
