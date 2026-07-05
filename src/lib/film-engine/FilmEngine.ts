@@ -3,7 +3,14 @@ import { ExposureSystem } from "./ExposureSystem";
 import { GrainSystem } from "./GrainSystem";
 import { LightLeakSystem } from "./LightLeakSystem";
 import { ScratchSystem } from "./ScratchSystem";
-import type { FilmEngineOptions, FilmFrame, FilmScene, FilmSize, FilmState } from "./types";
+import type {
+  FilmEngineOptions,
+  FilmFrame,
+  FilmLightLeakCue,
+  FilmScene,
+  FilmSize,
+  FilmState,
+} from "./types";
 import { createRandom, createSessionSeed } from "./utils";
 
 export class FilmEngine {
@@ -46,13 +53,13 @@ export class FilmEngine {
   resize(size: FilmSize) {
     this.size = size;
     this.grain.resize(size, this.reducedMotion);
-    this.scratches.resize();
+    this.scratches.resize(size);
     this.dust.resize();
     this.lightLeaks.resize(size);
   }
 
-  triggerLightLeak(timeMs: number) {
-    this.lightLeaks.trigger(timeMs / 1000, this.size, this.reducedMotion, this.scene);
+  triggerLightLeak(timeMs: number, cue: FilmLightLeakCue) {
+    this.lightLeaks.trigger(timeMs / 1000, this.size, this.reducedMotion, this.scene, cue);
   }
 
   render(timeMs: number) {
@@ -72,13 +79,13 @@ export class FilmEngine {
 
     this.context.clearRect(0, 0, this.size.width, this.size.height);
     this.exposure.render(frame);
+    this.lightLeaks.update(frame);
+    this.lightLeaks.render(frame);
     this.grain.update(frame);
     this.grain.render(frame);
     this.dust.update(frame);
     this.dust.render(frame);
     this.scratches.update(frame);
     this.scratches.render(frame);
-    this.lightLeaks.update(frame);
-    this.lightLeaks.render(frame);
   }
 }

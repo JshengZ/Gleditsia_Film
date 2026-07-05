@@ -1,18 +1,36 @@
 import { SCENE_PROFILES } from "./constants";
-import type { FilmFrame, ScratchEvent, ScratchKind, ScratchSegment } from "./types";
+import type { FilmFrame, FilmSize, ScratchEvent, ScratchKind, ScratchSegment } from "./types";
 import { randomBetween, rgba } from "./utils";
+
+type ReelLineEvent = {
+  id: number;
+  x: number;
+  opacity: number;
+  width: number;
+  age: number;
+  life: number;
+  drift: number;
+  seed: number;
+  segments: ScratchSegment[];
+};
 
 export class ScratchSystem {
   private readonly random: () => number;
   private readonly events: ScratchEvent[] = [];
+  private readonly reelLines: ReelLineEvent[] = [];
   private nextId = 1;
 
   constructor(random: () => number) {
     this.random = random;
   }
 
-  resize() {
+  resize(size?: FilmSize) {
     this.events.length = 0;
+    this.reelLines.length = 0;
+
+    if (size) {
+      this.createReelLines(size);
+    }
   }
 
   update(frame: FilmFrame) {
@@ -24,6 +42,17 @@ export class ScratchSystem {
 
       if (event.age > event.life) {
         this.events.splice(index, 1);
+      }
+    }
+
+    for (const line of this.reelLines) {
+      line.age += delta;
+
+      if (line.age > line.life) {
+        line.age = 0;
+        line.x += randomBetween(this.random, -8, 8);
+        line.opacity = randomBetween(this.random, 0.018, 0.045);
+        line.segments = this.createSegments(true);
       }
     }
 
@@ -45,6 +74,22 @@ export class ScratchSystem {
     context.save();
     context.lineCap = "round";
     context.globalCompositeOperation = "source-over";
+
+    for (const line of this.reelLines) {
+      const drift = Math.sin(time * 0.72 + line.seed) * line.drift;
+      const pulse = 0.72 + Math.sin(time * 2.1 + line.seed) * 0.24;
+      const x = line.x + drift;
+
+      context.lineWidth = line.width;
+      context.strokeStyle = rgba("222, 210, 184", line.opacity * pulse);
+
+      for (const segment of line.segments) {
+        context.beginPath();
+        context.moveTo(x, frame.height * segment.start);
+        context.lineTo(x + Math.sin(segment.end * 6 + line.seed) * 0.28, frame.height * segment.end);
+        context.stroke();
+      }
+    }
 
     for (const event of this.events) {
       const progress = Math.max(0, Math.min(event.age / event.life, 1));
@@ -104,6 +149,25 @@ export class ScratchSystem {
       seed: this.random() * Math.PI * 2,
       segments,
     };
+  }
+
+  private createReelLines(size: FilmSize) {
+    const count = size.width < 760 ? 1 : 2;
+    const anchors = count === 1 ? [0.22] : [0.18, 0.74];
+
+    for (const anchor of anchors) {
+      this.reelLines.push({
+        id: this.nextId++,
+        x: size.width * anchor + randomBetween(this.random, -14, 14),
+        opacity: randomBetween(this.random, 0.018, 0.044),
+        width: randomBetween(this.random, 0.45, 0.85),
+        age: this.random() * 2,
+        life: randomBetween(this.random, 2.8, 6.4),
+        drift: randomBetween(this.random, 0.22, 0.72),
+        seed: this.random() * Math.PI * 2,
+        segments: this.createSegments(true),
+      });
+    }
   }
 
   private pickKind(): ScratchKind {

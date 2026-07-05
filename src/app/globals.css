@@ -51,9 +51,7 @@ body.gleditsia-opening-lock {
   position: relative;
   min-height: 100svh;
   overflow: hidden;
-  background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.36) 0%, rgba(8, 6, 5, 0.18) 17%, rgba(11, 8, 6, 0.08) 52%, rgba(0, 0, 0, 0.32) 100%),
-    linear-gradient(180deg, #0b0806 0%, #080605 52%, #050403 100%);
+  background: #080605;
   isolation: isolate;
   transition: background-color 1200ms ease;
 }
@@ -65,34 +63,6 @@ body.gleditsia-opening-lock {
   pointer-events: none;
   transform-origin: 50% 50%;
   will-change: transform;
-}
-
-.home-intro::before {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  content: "";
-  background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.42), transparent 16%, transparent 84%, rgba(0, 0, 0, 0.44)),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.34), transparent 21%, transparent 76%, rgba(0, 0, 0, 0.5));
-  mix-blend-mode: normal;
-  opacity: 0.52;
-  animation: vignette-breath 12s ease-in-out infinite;
-}
-
-.home-intro::after {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  pointer-events: none;
-  content: "";
-  background:
-    linear-gradient(90deg, rgba(255, 226, 184, 0.006), transparent 13%, transparent 87%, rgba(255, 226, 184, 0.004)),
-    linear-gradient(180deg, rgba(255, 236, 206, 0.006), transparent 48%, rgba(0, 0, 0, 0.06));
-  mix-blend-mode: soft-light;
-  opacity: 0.22;
-  animation: projector-exposure-breath 9.8s ease-in-out infinite;
 }
 
 .home-brand-title {
@@ -317,29 +287,6 @@ body.gleditsia-opening-lock {
   background: linear-gradient(90deg, transparent, rgba(232, 222, 204, 0.34), transparent);
 }
 
-@keyframes projector-exposure-breath {
-  0%,
-  100% {
-    opacity: 0.08;
-  }
-  38% {
-    opacity: 0.12;
-  }
-  73% {
-    opacity: 0.09;
-  }
-}
-
-@keyframes vignette-breath {
-  0%,
-  100% {
-    opacity: 0.68;
-  }
-  52% {
-    opacity: 0.74;
-  }
-}
-
 @keyframes title-emulsion-breathe {
   0%,
   100% {
@@ -398,9 +345,7 @@ body.gleditsia-opening-lock {
   }
 
   .home-intro {
-    background:
-      linear-gradient(90deg, rgba(0, 0, 0, 0.34) 0%, rgba(8, 6, 5, 0.16) 22%, rgba(10, 8, 6, 0.06) 54%, rgba(0, 0, 0, 0.32) 100%),
-      linear-gradient(180deg, #0b0806 0%, #080605 62%, #050403 100%);
+    background: #080605;
   }
 
   .intro-copy {
@@ -444,9 +389,7 @@ body.gleditsia-opening-lock {
   }
 
   .mosaic-wall__gate,
-  .home-brand-title__text,
-  .home-intro::before,
-  .home-intro::after {
+  .home-brand-title__text {
     animation: none;
   }
 

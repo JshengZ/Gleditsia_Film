@@ -6,6 +6,13 @@ export type FilmScene =
   | "photo-developing"
   | "settled";
 
+export type FilmLightLeakCue = "brand-move" | "photo-developing";
+
+export type FilmLightLeakRequest = {
+  id: number;
+  cue: FilmLightLeakCue;
+};
+
 export type FilmState = {
   time: number;
   scene: FilmScene;
@@ -94,6 +101,7 @@ export type ScratchEvent = {
 
 export type LightLeakOrigin =
   | "left"
+  | "left-bottom"
   | "right"
   | "top"
   | "bottom"

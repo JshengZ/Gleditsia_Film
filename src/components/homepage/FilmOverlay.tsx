@@ -1,11 +1,11 @@
 import { CanvasFilmOverlay } from "./CanvasFilmOverlay";
-import type { FilmScene } from "@/lib/film-engine/types";
+import type { FilmLightLeakRequest, FilmScene } from "@/lib/film-engine/types";
 
 type FilmOverlayProps = {
-  lightLeakTriggerKey: number;
+  lightLeakRequest: FilmLightLeakRequest | null;
   scene: FilmScene;
 };
 
-export function FilmOverlay({ lightLeakTriggerKey, scene }: FilmOverlayProps) {
-  return <CanvasFilmOverlay lightLeakTriggerKey={lightLeakTriggerKey} scene={scene} />;
+export function FilmOverlay({ lightLeakRequest, scene }: FilmOverlayProps) {
+  return <CanvasFilmOverlay lightLeakRequest={lightLeakRequest} scene={scene} />;
 }

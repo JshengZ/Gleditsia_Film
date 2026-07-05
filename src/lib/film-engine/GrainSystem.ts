@@ -18,8 +18,8 @@ export class GrainSystem {
 
   resize(size: FilmSize, reducedMotion: boolean) {
     const target = reducedMotion
-      ? Math.min(380, Math.max(140, Math.round((size.width * size.height) / 2800)))
-      : Math.min(1350, Math.max(300, Math.round((size.width * size.height) / 980)));
+      ? Math.min(720, Math.max(220, Math.round((size.width * size.height) / 1800)))
+      : Math.min(6500, Math.max(1200, Math.round((size.width * size.height) / 260)));
 
     this.fine.length = 0;
 
@@ -82,11 +82,12 @@ export class GrainSystem {
 
     for (const particle of this.fine) {
       const densityPatch =
-        0.64 +
-        Math.sin(particle.x * 0.007 + particle.phase) * 0.18 +
-        Math.cos(particle.y * 0.006 - particle.phase) * 0.14;
-      const pulse = 0.82 + Math.sin(time * 2.2 + particle.phase) * 0.1;
-      const alpha = particle.alpha * densityPatch * pulse * (0.72 + state.density * 0.44);
+        0.78 +
+        Math.sin(particle.x * 0.0052 + particle.phase) * 0.22 +
+        Math.cos(particle.y * 0.0044 - particle.phase * 0.7) * 0.18 +
+        Math.sin((particle.x + particle.y) * 0.0017 + particle.phase * 1.8) * 0.16;
+      const pulse = 0.9 + Math.sin(time * 1.7 + particle.phase) * 0.07;
+      const alpha = particle.alpha * Math.max(0.32, densityPatch) * pulse * (0.82 + state.density * 0.5);
       const color = particle.polarity > 0 ? "232, 222, 202" : "6, 5, 4";
 
       context.fillStyle = rgba(color, alpha);
@@ -116,12 +117,12 @@ export class GrainSystem {
     return {
       x,
       y,
-      radius: randomBetween(this.random, 0.25, 0.8),
-      alpha: randomBetween(this.random, 0.015, 0.05) * (0.62 + densityBias * 0.5),
-      vx: randomBetween(this.random, -3.4, 3.4),
-      vy: randomBetween(this.random, -2.0, 2.4),
+      radius: randomBetween(this.random, 0.46, 1.12),
+      alpha: randomBetween(this.random, 0.024, 0.075) * (0.68 + densityBias * 0.6),
+      vx: randomBetween(this.random, -2.6, 2.6),
+      vy: randomBetween(this.random, -1.6, 1.9),
       phase: this.random() * Math.PI * 2,
-      polarity: this.random() > 0.48 ? 1 : -1,
+      polarity: this.random() > 0.44 ? 1 : -1,
     };
   }
 
@@ -134,9 +135,9 @@ export class GrainSystem {
       x,
       y,
       radius: randomBetween(this.random, 0.8, 2.2),
-      alpha: randomBetween(this.random, 0.03, 0.12),
+      alpha: randomBetween(this.random, 0.035, 0.13),
       bornAt: frame.time,
-      life: randomBetween(this.random, 0.2, 1.6),
+      life: randomBetween(this.random, 0.24, 1.45),
       vx: randomBetween(this.random, -2.4, 2.4),
       vy: randomBetween(this.random, -1.2, 1.8),
       polarity: this.random() > 0.56 ? 1 : -1,

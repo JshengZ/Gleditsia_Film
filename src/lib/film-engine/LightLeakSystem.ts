@@ -1,6 +1,6 @@
-import { LIGHT_LEAK_COLORS, SCENE_PROFILES } from "./constants";
 import type {
   FilmFrame,
+  FilmLightLeakCue,
   FilmScene,
   FilmSize,
   LightLeakEvent,
@@ -12,23 +12,29 @@ import {
   createRandom,
   easeExposure,
   pathIrregularLoop,
-  pick,
   randomBetween,
   rgba,
-  strokeSmoothPath,
 } from "./utils";
 
 type InternalLightLeakEvent = LightLeakEvent & {
-  boundary: Point[];
-  washBoundary: Point[];
+  cue: FilmLightLeakCue;
+  body: Point[];
+  wash: Point[];
   edge: Point[];
+};
+
+const CLEAN_EDGE_COLORS = {
+  core: "255, 205, 92",
+  mid: "215, 65, 31",
+  edge: "107, 22, 18",
 };
 
 export class LightLeakSystem {
   private readonly random: () => number;
   private readonly events: InternalLightLeakEvent[] = [];
+  private readonly triggeredCues = new Set<FilmLightLeakCue>();
   private nextId = 1;
-  private nextAmbientAt = 0;
+  private lastTriggerAt = -Infinity;
 
   constructor(random: () => number) {
     this.random = random;
@@ -36,16 +42,31 @@ export class LightLeakSystem {
 
   resize(size: FilmSize) {
     this.events.length = 0;
-    this.nextAmbientAt = randomBetween(this.random, 9, 18);
     void size;
   }
 
-  trigger(time: number, size: FilmSize, reducedMotion: boolean, scene: FilmScene) {
-    if (size.width <= 0 || size.height <= 0) {
+  trigger(
+    time: number,
+    size: FilmSize,
+    reducedMotion: boolean,
+    scene: FilmScene,
+    cue: FilmLightLeakCue,
+  ) {
+    if (size.width <= 0 || size.height <= 0 || this.triggeredCues.has(cue)) {
       return;
     }
 
-    this.events.push(this.createEvent(time, size, reducedMotion, true, scene));
+    if (this.events.some((event) => time - event.startTime < event.duration)) {
+      return;
+    }
+
+    if (time - this.lastTriggerAt < 0.42) {
+      return;
+    }
+
+    this.triggeredCues.add(cue);
+    this.lastTriggerAt = time;
+    this.events.push(this.createEvent(time, size, reducedMotion, scene, cue));
   }
 
   update(frame: FilmFrame) {
@@ -56,18 +77,6 @@ export class LightLeakSystem {
         this.events.splice(index, 1);
       }
     }
-
-    if (frame.reducedMotion || frame.time < this.nextAmbientAt) {
-      return;
-    }
-
-    const profile = SCENE_PROFILES[frame.state.scene];
-
-    if (this.random() < profile.ambientLeakChance) {
-      this.events.push(this.createEvent(frame.time, frame, frame.reducedMotion, false, frame.state.scene));
-    }
-
-    this.nextAmbientAt = frame.time + randomBetween(this.random, 12, 26);
   }
 
   render(frame: FilmFrame) {
@@ -91,171 +100,99 @@ export class LightLeakSystem {
     startTime: number,
     size: FilmSize,
     reducedMotion: boolean,
-    deliberate: boolean,
     scene: FilmScene,
+    cue: FilmLightLeakCue,
   ): InternalLightLeakEvent {
-    const origin = deliberate
-      ? pick(this.random, ["left", "right", "top", "bottom", "corner", "random"] as const)
-      : pick(this.random, ["left", "right", "top", "bottom", "corner"] as const);
-    const shape = pick(this.random, ["band", "wash", "burn", "flare"] as const);
-    const colors = pick(this.random, LIGHT_LEAK_COLORS);
-    const geometry = this.createGeometry(size, origin, shape);
-    const seed = this.random() * 10000;
-    const profile = SCENE_PROFILES[scene];
+    const origin: LightLeakOrigin =
+      cue === "photo-developing" && this.random() > 0.42 ? "left-bottom" : "left";
+    const shape: LightLeakShape = cue === "brand-move" ? "burn" : "wash";
+    const width = size.width * randomBetween(this.random, 0.2, 0.25);
+    const height = size.height * randomBetween(this.random, 0.96, 1.18);
+    const y =
+      origin === "left-bottom"
+        ? size.height - height * randomBetween(this.random, 0.78, 0.96)
+        : -height * randomBetween(this.random, 0.05, 0.16);
     const event: LightLeakEvent = {
       id: this.nextId++,
       startTime,
       duration: reducedMotion
-        ? randomBetween(this.random, 0.35, 0.5)
-        : deliberate
-          ? randomBetween(this.random, 0.45, 0.78)
-          : randomBetween(this.random, 0.35, 0.9),
+        ? randomBetween(this.random, 0.32, 0.42)
+        : cue === "brand-move"
+          ? randomBetween(this.random, 0.42, 0.52)
+          : randomBetween(this.random, 0.46, 0.58),
       origin,
       shape,
-      ...geometry,
-      intensity: deliberate
-        ? randomBetween(this.random, 0.72, 1.0) * (0.95 + profile.contamination * 0.18)
-        : randomBetween(this.random, 0.32, 0.64),
-      softness: randomBetween(this.random, 0.65, 1),
-      transparency: randomBetween(this.random, 0.72, 0.94),
-      colors,
-      seed,
+      x: -width * randomBetween(this.random, 0.02, 0.08),
+      y,
+      width,
+      height,
+      angle: randomBetween(this.random, -0.12, 0.1),
+      intensity: cue === "brand-move" ? randomBetween(this.random, 0.86, 1.04) : randomBetween(this.random, 0.9, 1.12),
+      softness: randomBetween(this.random, 0.72, 0.96),
+      transparency: scene === "photo-developing" ? randomBetween(this.random, 0.7, 0.84) : randomBetween(this.random, 0.66, 0.8),
+      colors: CLEAN_EDGE_COLORS,
+      seed: this.random() * 10000,
     };
 
     return {
       ...event,
-      boundary: this.createBoundary(event, false),
-      washBoundary: this.createBoundary(event, true),
-      edge: this.createEdgeTrace(event),
+      cue,
+      body: this.createBody(event, 1),
+      wash: this.createBody(event, 1.2),
+      edge: this.createEdge(event),
     };
   }
 
-  private createGeometry(
-    size: FilmSize,
-    origin: LightLeakOrigin,
-    shape: LightLeakShape,
-  ): Pick<LightLeakEvent, "x" | "y" | "width" | "height" | "angle"> {
-    const widthScale =
-      shape === "wash"
-        ? randomBetween(this.random, 0.28, 0.5)
-        : shape === "burn"
-          ? randomBetween(this.random, 0.2, 0.38)
-          : randomBetween(this.random, 0.24, 0.48);
-    const heightScale =
-      shape === "band"
-        ? randomBetween(this.random, 0.34, 0.82)
-        : shape === "flare"
-          ? randomBetween(this.random, 0.28, 0.7)
-          : randomBetween(this.random, 0.32, 0.76);
-    const leakWidth = size.width * widthScale;
-    const leakHeight = size.height * heightScale;
-    const angle = randomBetween(this.random, -0.55, 0.55);
-    const resolvedOrigin =
-      origin === "random"
-        ? pick(this.random, ["left", "right", "top", "bottom"] as const)
-        : origin;
-
-    switch (resolvedOrigin) {
-      case "right":
-        return {
-          x: size.width - leakWidth * randomBetween(this.random, 0.55, 0.88),
-          y: randomBetween(this.random, -leakHeight * 0.2, size.height - leakHeight * 0.44),
-          width: leakWidth,
-          height: leakHeight,
-          angle: angle + randomBetween(this.random, -0.1, 0.18),
-        };
-      case "top":
-        return {
-          x: randomBetween(this.random, -leakWidth * 0.16, size.width - leakWidth * 0.44),
-          y: -leakHeight * randomBetween(this.random, 0.18, 0.42),
-          width: leakWidth,
-          height: leakHeight,
-          angle: angle + Math.PI / 2,
-        };
-      case "bottom":
-        return {
-          x: randomBetween(this.random, -leakWidth * 0.16, size.width - leakWidth * 0.44),
-          y: size.height - leakHeight * randomBetween(this.random, 0.56, 0.82),
-          width: leakWidth,
-          height: leakHeight,
-          angle: angle + Math.PI / 2,
-        };
-      case "corner": {
-        const left = this.random() > 0.5;
-        const top = this.random() > 0.5;
-
-        return {
-          x: left ? -leakWidth * randomBetween(this.random, 0.18, 0.38) : size.width - leakWidth * randomBetween(this.random, 0.58, 0.86),
-          y: top ? -leakHeight * randomBetween(this.random, 0.16, 0.36) : size.height - leakHeight * randomBetween(this.random, 0.58, 0.82),
-          width: leakWidth,
-          height: leakHeight,
-          angle: angle + (left ? -0.18 : 0.18),
-        };
-      }
-      case "left":
-      default:
-        return {
-          x: -leakWidth * randomBetween(this.random, 0.18, 0.42),
-          y: randomBetween(this.random, -leakHeight * 0.2, size.height - leakHeight * 0.44),
-          width: leakWidth,
-          height: leakHeight,
-          angle,
-        };
-    }
-  }
-
-  private createBoundary(event: LightLeakEvent, wash: boolean) {
-    const random = createRandom(Math.floor(event.seed * (wash ? 1700 : 1000)));
+  private createBody(event: LightLeakEvent, scale: number) {
+    const random = createRandom(Math.floor(event.seed * scale * 1300));
     const points: Point[] = [];
-    const count = event.shape === "band" ? 13 : 17;
-    const cx = event.x + event.width * 0.5;
-    const cy = event.y + event.height * 0.5;
-    const scale = wash ? 1.22 + event.softness * 0.18 : 1;
+    const count = 8;
+    const topBase = event.y + event.height * randomBetween(random, 0.02, 0.11);
+    const bottomBase = event.y + event.height * randomBetween(random, 0.82, 0.98);
+    const innerWidth = event.width * scale;
 
-    for (let index = 0; index < count; index += 1) {
-      const angle = (index / count) * Math.PI * 2;
-      const rx = event.width * randomBetween(random, 0.32, 0.58) * scale;
-      const ry = event.height * randomBetween(random, 0.25, 0.54) * scale;
-      const pinch = event.shape === "burn" && index % 3 === 0 ? randomBetween(random, 0.58, 0.78) : 1;
+    points.push({
+      x: event.x - event.width * 0.08,
+      y: topBase + randomBetween(random, -18, 12),
+    });
 
+    for (let index = 1; index < count; index += 1) {
+      const t = index / (count - 1);
+      const curve = Math.sin(t * Math.PI);
       points.push({
-        x: cx + Math.cos(angle) * rx * pinch,
-        y: cy + Math.sin(angle) * ry * pinch,
+        x: event.x + innerWidth * (0.48 + curve * randomBetween(random, 0.2, 0.44)),
+        y: topBase + event.height * t * randomBetween(random, 0.03, 0.14) + randomBetween(random, -28, 24),
       });
     }
+
+    for (let index = count - 1; index >= 1; index -= 1) {
+      const t = index / (count - 1);
+      const curve = Math.sin(t * Math.PI);
+      points.push({
+        x: event.x + innerWidth * (0.58 + curve * randomBetween(random, 0.16, 0.36)),
+        y: bottomBase - event.height * (1 - t) * randomBetween(random, 0.02, 0.1) + randomBetween(random, -24, 28),
+      });
+    }
+
+    points.push({
+      x: event.x - event.width * 0.1,
+      y: bottomBase + randomBetween(random, -14, 22),
+    });
 
     return points;
   }
 
-  private createEdgeTrace(event: LightLeakEvent) {
-    const random = createRandom(Math.floor(event.seed * 2300 + 31));
+  private createEdge(event: LightLeakEvent) {
+    const random = createRandom(Math.floor(event.seed * 2400 + 19));
     const points: Point[] = [];
-    const count = 11;
+    const count = 12;
 
     for (let index = 0; index < count; index += 1) {
       const t = index / (count - 1);
-
-      if (event.origin === "right") {
-        points.push({
-          x: event.x + event.width * randomBetween(random, 0.7, 0.98),
-          y: event.y + event.height * t + randomBetween(random, -18, 18),
-        });
-      } else if (event.origin === "top") {
-        points.push({
-          x: event.x + event.width * t + randomBetween(random, -18, 18),
-          y: event.y + event.height * randomBetween(random, 0.08, 0.28),
-        });
-      } else if (event.origin === "bottom") {
-        points.push({
-          x: event.x + event.width * t + randomBetween(random, -18, 18),
-          y: event.y + event.height * randomBetween(random, 0.7, 0.95),
-        });
-      } else {
-        points.push({
-          x: event.x + event.width * randomBetween(random, 0.04, 0.26),
-          y: event.y + event.height * t + randomBetween(random, -18, 18),
-        });
-      }
+      points.push({
+        x: event.x + event.width * randomBetween(random, 0.02, 0.12),
+        y: event.y + event.height * t + randomBetween(random, -18, 18),
+      });
     }
 
     return points;
@@ -263,24 +200,17 @@ export class LightLeakSystem {
 
   private renderWash(frame: FilmFrame, event: InternalLightLeakEvent, strength: number) {
     const { context } = frame;
-    const alpha = (0.03 + event.softness * 0.032) * strength * event.transparency;
-    const gradientLine = this.getGradientLine(event);
+    const alpha = (0.038 + event.softness * 0.03) * strength * event.transparency;
 
     context.save();
     context.globalCompositeOperation = "source-over";
-    context.translate(event.x + event.width * 0.5, event.y + event.height * 0.5);
-    context.rotate(event.angle * 0.32);
-    context.translate(-event.x - event.width * 0.5, -event.y - event.height * 0.5);
-    pathIrregularLoop(context, event.washBoundary);
+    this.applyEventTransform(context, event, 0.36);
+    pathIrregularLoop(context, event.wash);
 
-    const gradient = context.createLinearGradient(
-      gradientLine.x0,
-      gradientLine.y0,
-      gradientLine.x1,
-      gradientLine.y1,
-    );
-    gradient.addColorStop(0, rgba(event.colors.mid, alpha));
-    gradient.addColorStop(0.46, rgba(event.colors.core, alpha * 0.42));
+    const gradient = context.createLinearGradient(event.x, event.y, event.x + event.width * 1.25, event.y);
+    gradient.addColorStop(0, rgba(event.colors.mid, alpha * 1.35));
+    gradient.addColorStop(0.22, rgba(event.colors.edge, alpha * 0.78));
+    gradient.addColorStop(0.72, rgba(event.colors.mid, alpha * 0.18));
     gradient.addColorStop(1, rgba(event.colors.mid, 0));
 
     context.fillStyle = gradient;
@@ -290,193 +220,85 @@ export class LightLeakSystem {
 
   private renderCore(frame: FilmFrame, event: InternalLightLeakEvent, strength: number) {
     const { context } = frame;
-    const alpha = (0.08 + event.intensity * 0.09) * strength * event.transparency;
-    const gradientLine = this.getGradientLine(event);
+    const alpha = (0.074 + event.intensity * 0.074) * strength * event.transparency;
 
     context.save();
     context.globalCompositeOperation = "screen";
-    context.translate(event.x + event.width * 0.5, event.y + event.height * 0.5);
-    context.rotate(event.angle);
-    context.translate(-event.x - event.width * 0.5, -event.y - event.height * 0.5);
-    this.pathCore(context, event);
+    this.applyEventTransform(context, event, 0.72);
+    pathIrregularLoop(context, event.body);
 
-    const gradient = context.createLinearGradient(
-      gradientLine.x0,
-      gradientLine.y0,
-      gradientLine.x1,
-      gradientLine.y1,
-    );
-    gradient.addColorStop(0, rgba(event.colors.core, alpha));
-    gradient.addColorStop(0.18, rgba(event.colors.mid, alpha * 0.74));
-    gradient.addColorStop(0.52, rgba(event.colors.edge, alpha * 0.28));
-    gradient.addColorStop(1, rgba(event.colors.core, 0));
+    const gradient = context.createLinearGradient(event.x, event.y, event.x + event.width, event.y);
+    gradient.addColorStop(0, rgba(event.colors.core, alpha * 0.82));
+    gradient.addColorStop(0.16, rgba(event.colors.mid, alpha));
+    gradient.addColorStop(0.48, rgba(event.colors.edge, alpha * 0.36));
+    gradient.addColorStop(0.82, rgba(event.colors.edge, alpha * 0.08));
+    gradient.addColorStop(1, rgba(event.colors.mid, 0));
 
     context.fillStyle = gradient;
     context.fill();
     context.restore();
   }
 
-  private getGradientLine(event: LightLeakEvent) {
-    if (event.origin === "right") {
-      return {
-        x0: event.x + event.width,
-        y0: event.y + event.height * 0.5,
-        x1: event.x,
-        y1: event.y + event.height * 0.5,
-      };
-    }
-
-    if (event.origin === "top") {
-      return {
-        x0: event.x + event.width * 0.5,
-        y0: event.y,
-        x1: event.x + event.width * 0.5,
-        y1: event.y + event.height,
-      };
-    }
-
-    if (event.origin === "bottom") {
-      return {
-        x0: event.x + event.width * 0.5,
-        y0: event.y + event.height,
-        x1: event.x + event.width * 0.5,
-        y1: event.y,
-      };
-    }
-
-    if (event.origin === "corner") {
-      const fromLeft = event.x < 0;
-      const fromTop = event.y < 0;
-
-      return {
-        x0: fromLeft ? event.x : event.x + event.width,
-        y0: fromTop ? event.y : event.y + event.height,
-        x1: fromLeft ? event.x + event.width : event.x,
-        y1: fromTop ? event.y + event.height : event.y,
-      };
-    }
-
-    if (event.origin === "random" && event.y < 0) {
-      return {
-        x0: event.x + event.width * 0.5,
-        y0: event.y,
-        x1: event.x + event.width * 0.5,
-        y1: event.y + event.height,
-      };
-    }
-
-    if (event.origin === "random" && event.x > event.width * 0.5) {
-      return {
-        x0: event.x + event.width,
-        y0: event.y + event.height * 0.5,
-        x1: event.x,
-        y1: event.y + event.height * 0.5,
-      };
-    }
-
-    return {
-      x0: event.x,
-      y0: event.y + event.height * 0.5,
-      x1: event.x + event.width,
-      y1: event.y + event.height * 0.5,
-    };
-  }
-
   private renderEdgeBurn(frame: FilmFrame, event: InternalLightLeakEvent, strength: number) {
     const { context } = frame;
-    const edgeAlpha = (0.05 + event.intensity * 0.048) * strength * event.transparency;
-    const random = createRandom(Math.floor(event.seed * 911));
+    const random = createRandom(Math.floor(event.seed * 3100));
+    const edgeWidth = randomBetween(random, 20, 42);
+    const alpha = (0.15 + event.intensity * 0.12) * strength * event.transparency;
 
     context.save();
-    context.globalCompositeOperation = "source-over";
-    context.lineCap = "round";
-    context.lineJoin = "round";
-    context.strokeStyle = rgba(event.colors.edge, edgeAlpha);
-    context.lineWidth = randomBetween(random, 1.1, 3.6);
-    strokeSmoothPath(context, event.edge);
+    context.globalCompositeOperation = "screen";
+    this.applyEventTransform(context, event, 0.18);
+    context.beginPath();
+    context.moveTo(event.x - edgeWidth * 0.28, event.y - 20);
 
-    context.strokeStyle = rgba(event.colors.core, edgeAlpha * 0.42);
-    context.lineWidth = 0.75;
-    strokeSmoothPath(context, event.edge);
+    for (const point of event.edge) {
+      context.lineTo(point.x + randomBetween(random, -2, 3), point.y);
+    }
+
+    context.lineTo(event.x - edgeWidth * 0.24, event.y + event.height + 20);
+    context.closePath();
+
+    const gradient = context.createLinearGradient(event.x - edgeWidth, event.y, event.x + edgeWidth, event.y);
+    gradient.addColorStop(0, rgba(event.colors.core, alpha));
+    gradient.addColorStop(0.28, rgba(event.colors.core, alpha * 0.72));
+    gradient.addColorStop(0.58, rgba(event.colors.mid, alpha * 0.36));
+    gradient.addColorStop(1, rgba(event.colors.mid, 0));
+
+    context.fillStyle = gradient;
+    context.fill();
     context.restore();
   }
 
   private renderContaminationGrain(frame: FilmFrame, event: InternalLightLeakEvent, strength: number) {
     const { context } = frame;
-    const random = createRandom(Math.floor(event.seed * 4100 + frame.time * 16));
-    const count = 18 + Math.floor(event.width * event.height / 32000);
+    const random = createRandom(Math.floor(event.seed * 4100 + frame.time * 12));
+    const count = 42 + Math.floor((event.width * event.height) / 18000);
 
     context.save();
-    context.globalCompositeOperation = "screen";
-    this.pathCore(context, event);
+    context.globalCompositeOperation = "source-over";
+    this.applyEventTransform(context, event, 0.72);
+    pathIrregularLoop(context, event.body);
     context.clip();
 
     for (let index = 0; index < count; index += 1) {
-      const x = randomBetween(random, event.x, event.x + event.width);
+      const x = randomBetween(random, event.x, event.x + event.width * 1.06);
       const y = randomBetween(random, event.y, event.y + event.height);
-      const alpha = randomBetween(random, 0.012, 0.036) * strength;
+      const alpha = randomBetween(random, 0.012, 0.04) * strength * event.transparency;
 
-      context.fillStyle = rgba(event.colors.core, alpha);
-      context.fillRect(x, y, randomBetween(random, 0.4, 1.2), randomBetween(random, 0.4, 1.2));
+      context.fillStyle = rgba(index % 3 === 0 ? event.colors.core : event.colors.mid, alpha);
+      context.fillRect(x, y, randomBetween(random, 0.45, 1.3), randomBetween(random, 0.45, 1.3));
     }
 
     context.restore();
   }
 
-  private pathCore(context: CanvasRenderingContext2D, event: InternalLightLeakEvent) {
-    if (event.shape === "band") {
-      this.pathBand(context, event);
-      return;
-    }
-
-    if (event.shape === "flare") {
-      this.pathFlare(context, event);
-      return;
-    }
-
-    pathIrregularLoop(context, event.boundary);
-  }
-
-  private pathBand(context: CanvasRenderingContext2D, event: LightLeakEvent) {
-    const random = createRandom(Math.floor(event.seed * 2200));
-    const top: Point[] = [];
-    const bottom: Point[] = [];
-    const count = 7;
-
-    for (let index = 0; index < count; index += 1) {
-      const t = index / (count - 1);
-      const x = event.x + event.width * t;
-      const center = event.y + event.height * (0.28 + Math.sin(t * Math.PI) * 0.12);
-      const thickness = event.height * randomBetween(random, 0.08, 0.22);
-      top.push({ x, y: center - thickness + randomBetween(random, -14, 14) });
-      bottom.push({ x, y: center + thickness + randomBetween(random, -14, 14) });
-    }
-
-    context.beginPath();
-    context.moveTo(top[0].x, top[0].y);
-    for (let index = 1; index < top.length; index += 1) {
-      const previous = top[index - 1];
-      const point = top[index];
-      context.quadraticCurveTo(previous.x, previous.y, (previous.x + point.x) * 0.5, (previous.y + point.y) * 0.5);
-    }
-    for (let index = bottom.length - 1; index >= 0; index -= 1) {
-      const previous = bottom[index + 1] ?? bottom[index];
-      const point = bottom[index];
-      context.quadraticCurveTo(previous.x, previous.y, (previous.x + point.x) * 0.5, (previous.y + point.y) * 0.5);
-    }
-    context.closePath();
-  }
-
-  private pathFlare(context: CanvasRenderingContext2D, event: LightLeakEvent) {
-    const random = createRandom(Math.floor(event.seed * 2600));
-    const points = [
-      { x: event.x, y: event.y + event.height * randomBetween(random, 0.16, 0.42) },
-      { x: event.x + event.width * randomBetween(random, 0.26, 0.48), y: event.y + randomBetween(random, -12, 22) },
-      { x: event.x + event.width * randomBetween(random, 0.74, 1.02), y: event.y + event.height * randomBetween(random, 0.2, 0.48) },
-      { x: event.x + event.width * randomBetween(random, 0.66, 0.92), y: event.y + event.height * randomBetween(random, 0.56, 0.92) },
-      { x: event.x + event.width * randomBetween(random, 0.16, 0.4), y: event.y + event.height * randomBetween(random, 0.62, 1.02) },
-    ];
-
-    pathIrregularLoop(context, points);
+  private applyEventTransform(
+    context: CanvasRenderingContext2D,
+    event: LightLeakEvent,
+    scale: number,
+  ) {
+    context.translate(event.x + event.width * scale, event.y + event.height * 0.5);
+    context.rotate(event.angle * scale);
+    context.translate(-event.x - event.width * scale, -event.y - event.height * 0.5);
   }
 }

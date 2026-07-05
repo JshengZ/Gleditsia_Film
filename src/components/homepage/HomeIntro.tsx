@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { homePhotos, INTRO_LINES } from "@/data/homePhotos";
 import { useLenis } from "@/hooks/useLenis";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import type { FilmScene } from "@/lib/film-engine/types";
+import type { FilmLightLeakCue, FilmLightLeakRequest, FilmScene } from "@/lib/film-engine/types";
 import { FilmOverlay } from "./FilmOverlay";
 import { PhotoMosaicWall } from "./PhotoMosaicWall";
 import { ScrollCue } from "./ScrollCue";
@@ -94,7 +94,7 @@ export function HomeIntro() {
   const reducedMotion = usePrefersReducedMotion();
   const reducedMotionRef = useRef(reducedMotion);
   const [isSequenceComplete, setIsSequenceComplete] = useState(false);
-  const [lightLeakKey, setLightLeakKey] = useState(0);
+  const [lightLeakRequest, setLightLeakRequest] = useState<FilmLightLeakRequest | null>(null);
   const [filmScene, setFilmScene] = useState<FilmScene>("intro");
 
   useLenis(isSequenceComplete && !reducedMotion);
@@ -258,8 +258,11 @@ export function HomeIntro() {
         setFilmScene(FILM_PHASE_SCENES[phase] ?? "intro");
       };
 
-      const burstLightLeak = () => {
-        setLightLeakKey((key) => key + 1);
+      const burstLightLeak = (cue: FilmLightLeakCue) => {
+        setLightLeakRequest((request) => ({
+          id: (request?.id ?? 0) + 1,
+          cue,
+        }));
       };
 
       let sequenceUnlocked = false;
@@ -472,7 +475,7 @@ export function HomeIntro() {
         .call(
           () => {
             setFilmPhase("title-retreat");
-            burstLightLeak();
+            burstLightLeak("brand-move");
           },
           [],
           sequenceTimes.brandMove,
@@ -495,7 +498,7 @@ export function HomeIntro() {
       timeline.call(
         () => {
           setFilmPhase("photo-developing");
-          burstLightLeak();
+          burstLightLeak("photo-developing");
         },
         [],
         sequenceTimes.firstPhoto,
@@ -595,7 +598,7 @@ export function HomeIntro() {
 
         <ScrollCue ref={cueRef} />
       </div>
-      <FilmOverlay lightLeakTriggerKey={lightLeakKey} scene={filmScene} />
+      <FilmOverlay lightLeakRequest={lightLeakRequest} scene={filmScene} />
     </section>
   );
 }

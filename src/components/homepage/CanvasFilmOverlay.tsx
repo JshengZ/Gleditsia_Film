@@ -3,14 +3,14 @@
 import { useEffect, useRef } from "react";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { FilmEngine } from "@/lib/film-engine/FilmEngine";
-import type { FilmScene } from "@/lib/film-engine/types";
+import type { FilmLightLeakRequest, FilmScene } from "@/lib/film-engine/types";
 
 type CanvasFilmOverlayProps = {
-  lightLeakTriggerKey: number;
+  lightLeakRequest: FilmLightLeakRequest | null;
   scene: FilmScene;
 };
 
-export function CanvasFilmOverlay({ lightLeakTriggerKey, scene }: CanvasFilmOverlayProps) {
+export function CanvasFilmOverlay({ lightLeakRequest, scene }: CanvasFilmOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const engineRef = useRef<FilmEngine | null>(null);
   const sceneRef = useRef<FilmScene>(scene);
@@ -22,12 +22,12 @@ export function CanvasFilmOverlay({ lightLeakTriggerKey, scene }: CanvasFilmOver
   }, [scene]);
 
   useEffect(() => {
-    if (lightLeakTriggerKey === 0) {
+    if (!lightLeakRequest) {
       return;
     }
 
-    engineRef.current?.triggerLightLeak(performance.now());
-  }, [lightLeakTriggerKey]);
+    engineRef.current?.triggerLightLeak(performance.now(), lightLeakRequest.cue);
+  }, [lightLeakRequest]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
