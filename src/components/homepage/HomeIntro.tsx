@@ -175,6 +175,7 @@ export function HomeIntro() {
             settle: 10.2,
             cue: 10.8,
           };
+      const openingLeakAt = sequenceTimes.firstPhoto - (reduced ? 0.16 : 0.32);
       const developFilter = reduced
         ? "brightness(0.98) contrast(1.08) saturate(0.78) blur(0px)"
         : "brightness(1.06) contrast(1.16) saturate(0.86) blur(0px)";
@@ -475,7 +476,6 @@ export function HomeIntro() {
         .call(
           () => {
             setFilmPhase("title-retreat");
-            burstLightLeak("brand-move");
           },
           [],
           sequenceTimes.brandMove,
@@ -495,10 +495,11 @@ export function HomeIntro() {
           sequenceTimes.brandMove,
         );
 
+      timeline.call(() => burstLightLeak("opening-leak"), [], openingLeakAt);
+
       timeline.call(
         () => {
           setFilmPhase("photo-developing");
-          burstLightLeak("photo-developing");
         },
         [],
         sequenceTimes.firstPhoto,

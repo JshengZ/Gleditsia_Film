@@ -5,12 +5,16 @@ import { randomBetween, rgba } from "./utils";
 type ReelLineEvent = {
   id: number;
   x: number;
+  y: number;
+  length: number;
   opacity: number;
   width: number;
   age: number;
   life: number;
   drift: number;
+  flicker: number;
   seed: number;
+  polarity: -1 | 1;
   segments: ScratchSegment[];
 };
 
@@ -49,10 +53,7 @@ export class ScratchSystem {
       line.age += delta;
 
       if (line.age > line.life) {
-        line.age = 0;
-        line.x += randomBetween(this.random, -8, 8);
-        line.opacity = randomBetween(this.random, 0.018, 0.045);
-        line.segments = this.createSegments(true);
+        this.refreshReelLine(line, frame);
       }
     }
 
@@ -77,16 +78,26 @@ export class ScratchSystem {
 
     for (const line of this.reelLines) {
       const drift = Math.sin(time * 0.72 + line.seed) * line.drift;
-      const pulse = 0.72 + Math.sin(time * 2.1 + line.seed) * 0.24;
+      const pulse = 0.72 + Math.sin(time * line.flicker + line.seed) * 0.28;
+      const blink = Math.sin(time * (line.flicker * 0.56) + line.seed * 1.7) > -0.82 ? 1 : 0.36;
       const x = line.x + drift;
 
       context.lineWidth = line.width;
-      context.strokeStyle = rgba("222, 210, 184", line.opacity * pulse);
+      context.strokeStyle = rgba(
+        line.polarity > 0 ? "232, 220, 192" : "18, 13, 9",
+        line.opacity * pulse * blink,
+      );
 
       for (const segment of line.segments) {
         context.beginPath();
-        context.moveTo(x, frame.height * segment.start);
-        context.lineTo(x + Math.sin(segment.end * 6 + line.seed) * 0.28, frame.height * segment.end);
+        context.moveTo(
+          x + Math.sin(segment.start * 8 + line.seed) * 0.38,
+          line.y + line.length * segment.start,
+        );
+        context.lineTo(
+          x + Math.sin(segment.end * 7 + line.seed) * 0.58,
+          line.y + line.length * segment.end,
+        );
         context.stroke();
       }
     }
@@ -152,22 +163,49 @@ export class ScratchSystem {
   }
 
   private createReelLines(size: FilmSize) {
-    const count = size.width < 760 ? 1 : 2;
-    const anchors = count === 1 ? [0.22] : [0.18, 0.74];
+    const count = 8 + Math.floor(this.random() * 8);
 
-    for (const anchor of anchors) {
-      this.reelLines.push({
-        id: this.nextId++,
-        x: size.width * anchor + randomBetween(this.random, -14, 14),
-        opacity: randomBetween(this.random, 0.018, 0.044),
-        width: randomBetween(this.random, 0.45, 0.85),
-        age: this.random() * 2,
-        life: randomBetween(this.random, 2.8, 6.4),
-        drift: randomBetween(this.random, 0.22, 0.72),
-        seed: this.random() * Math.PI * 2,
-        segments: this.createSegments(true),
-      });
+    for (let index = 0; index < count; index += 1) {
+      this.reelLines.push(this.createReelLine(size));
     }
+  }
+
+  private createReelLine(size: FilmSize): ReelLineEvent {
+    const length = randomBetween(this.random, size.height * 0.34, size.height * 1.12);
+    const longLine = this.random() > 0.55;
+
+    return {
+      id: this.nextId++,
+      x: randomBetween(this.random, size.width * -0.02, size.width * 1.02),
+      y: randomBetween(this.random, -size.height * 0.14, size.height - length * 0.32),
+      length: longLine ? randomBetween(this.random, size.height * 0.72, size.height * 1.18) : length,
+      opacity: randomBetween(this.random, 0.032, longLine ? 0.082 : 0.11),
+      width: randomBetween(this.random, 0.42, longLine ? 0.92 : 1.22),
+      age: this.random() * 2.4,
+      life: randomBetween(this.random, 0.72, 4.8),
+      drift: randomBetween(this.random, 0.2, 1.35),
+      flicker: randomBetween(this.random, 1.35, 4.4),
+      seed: this.random() * Math.PI * 2,
+      polarity: this.random() > 0.18 ? 1 : -1,
+      segments: this.createSegments(this.random() > 0.16),
+    };
+  }
+
+  private refreshReelLine(line: ReelLineEvent, size: FilmSize) {
+    const next = this.createReelLine(size);
+
+    line.x = next.x;
+    line.y = next.y;
+    line.length = next.length;
+    line.opacity = next.opacity;
+    line.width = next.width;
+    line.age = 0;
+    line.life = next.life;
+    line.drift = next.drift;
+    line.flicker = next.flicker;
+    line.seed = next.seed;
+    line.polarity = next.polarity;
+    line.segments = next.segments;
   }
 
   private pickKind(): ScratchKind {

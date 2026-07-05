@@ -6,7 +6,7 @@ export type FilmScene =
   | "photo-developing"
   | "settled";
 
-export type FilmLightLeakCue = "brand-move" | "photo-developing";
+export type FilmLightLeakCue = "opening-leak";
 
 export type FilmLightLeakRequest = {
   id: number;
