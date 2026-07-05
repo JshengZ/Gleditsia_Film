@@ -1,11 +1,9 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { homePhotos, INTRO_LINES } from "@/data/homePhotos";
-import { useDominantBackground } from "@/hooks/useDominantBackground";
 import { useLenis } from "@/hooks/useLenis";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { FilmOverlay } from "./FilmOverlay";
@@ -13,11 +11,6 @@ import { PhotoMosaicWall } from "./PhotoMosaicWall";
 import { ScrollCue } from "./ScrollCue";
 
 gsap.registerPlugin(ScrollTrigger);
-
-type IntroStyle = CSSProperties & {
-  "--dynamic-bg": string;
-  "--dynamic-bg-soft": string;
-};
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -84,13 +77,13 @@ function orderCardsForReveal(cards: HTMLElement[]) {
 
 export function HomeIntro() {
   const sectionRef = useRef<HTMLElement | null>(null);
+  const filmPlaneRef = useRef<HTMLDivElement | null>(null);
   const titleRef = useRef<HTMLHeadingElement | null>(null);
   const cueRef = useRef<HTMLDivElement | null>(null);
   const reducedMotion = usePrefersReducedMotion();
   const reducedMotionRef = useRef(reducedMotion);
   const [isSequenceComplete, setIsSequenceComplete] = useState(false);
   const [lightLeakKey, setLightLeakKey] = useState(0);
-  const background = useDominantBackground(homePhotos[0].src);
 
   useLenis(isSequenceComplete && !reducedMotion);
 
@@ -116,10 +109,11 @@ export function HomeIntro() {
 
   useEffect(() => {
     const section = sectionRef.current;
+    const filmPlane = filmPlaneRef.current;
     const title = titleRef.current;
     const cue = cueRef.current;
 
-    if (!section || !title || !cue) {
+    if (!section || !filmPlane || !title || !cue) {
       return;
     }
 
@@ -183,6 +177,13 @@ export function HomeIntro() {
         ? "brightness(0.76) contrast(0.88) saturate(0.58) blur(1.5px)"
         : "brightness(0.72) contrast(0.88) saturate(0.58) blur(2px)";
 
+      gsap.set(filmPlane, {
+        x: 0,
+        y: 0,
+        rotate: 0,
+        transformOrigin: "50% 50%",
+        force3D: true,
+      });
       gsap.set(title, {
         autoAlpha: 0,
         top: "50%",
@@ -224,6 +225,20 @@ export function HomeIntro() {
       });
       gsap.set(cue, { autoAlpha: 0, y: 8 });
       section.dataset.filmPhase = "blackout";
+
+      if (!reduced) {
+        gsap
+          .timeline({
+            repeat: -1,
+            defaults: { duration: 0.52, ease: "steps(1)" },
+          })
+          .to(filmPlane, { x: 0.28, y: -0.18, rotate: 0.004 })
+          .to(filmPlane, { x: -0.42, y: 0.22, rotate: -0.005 })
+          .to(filmPlane, { x: 0.16, y: 0.34, rotate: 0.003 })
+          .to(filmPlane, { x: -0.24, y: -0.28, rotate: -0.004 })
+          .to(filmPlane, { x: 0.36, y: 0.12, rotate: 0.004 })
+          .to(filmPlane, { x: 0, y: 0, rotate: 0 });
+      }
 
       const setFilmPhase = (phase: string) => {
         section.dataset.filmPhase = phase;
@@ -541,34 +556,30 @@ export function HomeIntro() {
     };
   }, []);
 
-  const introStyle: IntroStyle = {
-    "--dynamic-bg": background.base,
-    "--dynamic-bg-soft": background.soft,
-  };
-
   return (
     <section
       ref={sectionRef}
       className="home-intro"
       data-film-phase="blackout"
       aria-label="Gleditsia opening sequence"
-      style={introStyle}
     >
-      <PhotoMosaicWall />
+      <div ref={filmPlaneRef} className="film-plane">
+        <PhotoMosaicWall />
 
-      <h1 ref={titleRef} className="home-brand-title">
-        <span className="home-brand-title__text">Gleditsia</span>
-      </h1>
+        <h1 ref={titleRef} className="home-brand-title">
+          <span className="home-brand-title__text">Gleditsia</span>
+        </h1>
 
-      <p className="intro-copy" aria-label={INTRO_LINES.join(" ")}>
-        {INTRO_LINES.map((line) => (
-          <span key={line} className="intro-copy-line">
-            {line}
-          </span>
-        ))}
-      </p>
+        <p className="intro-copy" aria-label={INTRO_LINES.join(" ")}>
+          {INTRO_LINES.map((line) => (
+            <span key={line} className="intro-copy-line">
+              {line}
+            </span>
+          ))}
+        </p>
 
-      <ScrollCue ref={cueRef} />
+        <ScrollCue ref={cueRef} />
+      </div>
       <FilmOverlay lightLeakTriggerKey={lightLeakKey} />
     </section>
   );
